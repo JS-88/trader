@@ -4,6 +4,7 @@ import requests
 import pandas as pd
 import pandas_ta as ta
 from dotenv import load_dotenv
+import numpy as np
 import time
 
 # Load environment variables
@@ -29,9 +30,9 @@ def fetch_stock_data(symbol):
 
 def calculate_indicators(data):
     """Add technical indicators to the stock data."""
-    data['RSI'] = ta.rsi(data['close'], length=14)
-    data['MACD'] = ta.macd(data['close']).macd
-    data['MFI'] = ta.mfi(data['high'], data['low'], data['close'], data['volume'])
+    data['RSI'] = ta.rsi(data['close'], length=14).fillna(np.nan)
+    data['MACD'] = ta.macd(data['close']).macd.fillna(np.nan)
+    data['MFI'] = ta.mfi(data['high'], data['low'], data['close'], data['volume']).fillna(np.nan)
     return data
 
 def generate_signal(data):
