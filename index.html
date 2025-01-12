@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trading Bot Interface</title>
   <style>
+    /* CSS styles */
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f9; }
     .container { max-width: 600px; margin: 50px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
     h1 { text-align: center; }
@@ -22,9 +23,11 @@
     </div>
   </div>
   <script>
+    // JavaScript logic
     const startButton = document.getElementById('startButton');
     const logDiv = document.getElementById('log');
 
+    // Function to add logs dynamically
     function addLog(message) {
       const logEntry = document.createElement('p');
       logEntry.textContent = message;
@@ -32,16 +35,34 @@
       logDiv.scrollTop = logDiv.scrollHeight;
     }
 
-    const socket = new WebSocket('ws://localhost:8000/logs');
+    // WebSocket for real-time updates
+    const socket = new WebSocket('ws://localhost:8000/logs'); // Replace with your server's WebSocket URL
 
-    socket.onmessage = function (event) { addLog(event.data); };
-    socket.onopen = function () { addLog('Connected to the bot log...'); };
-    socket.onerror = function () { addLog('Error connecting to the log server.'); };
+    socket.onmessage = function (event) {
+      addLog(event.data);
+    };
 
+    socket.onopen = function () {
+      addLog('Connected to the bot log server...');
+    };
+
+    socket.onerror = function () {
+      addLog('Error connecting to the log server.');
+    };
+
+    // Event listener for the start button
     startButton.addEventListener('click', () => {
       fetch('/start-bot', { method: 'POST' })
-        .then((response) => { response.ok ? addLog('Bot started successfully!') : addLog('Failed to start the bot.'); })
-        .catch(() => addLog('Error sending request to start the bot.'));
+        .then((response) => {
+          if (response.ok) {
+            addLog('Bot started successfully!');
+          } else {
+            addLog('Failed to start the bot.');
+          }
+        })
+        .catch(() => {
+          addLog('Error sending request to start the bot.');
+        });
     });
   </script>
 </body>
