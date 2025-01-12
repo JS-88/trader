@@ -41,7 +41,7 @@ def calculate_indicators(data):
         data['MFI'] = ta.mfi(data['high'], data['low'], data['close'], data['volume'])
         
         # Replace missing values with 0
-        data.fillna(0, inplace=True)
+        data = data.fillna(0)
     except Exception as e:
         print(f"Error calculating indicators: {e}")
     return data
