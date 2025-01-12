@@ -4,7 +4,6 @@ import requests
 import pandas as pd
 import pandas_ta as ta
 from dotenv import load_dotenv
-import numpy as np
 import time
 
 # Load environment variables
@@ -30,9 +29,21 @@ def fetch_stock_data(symbol):
 
 def calculate_indicators(data):
     """Add technical indicators to the stock data."""
-    data['RSI'] = ta.rsi(data['close'], length=14).fillna(np.nan)
-    data['MACD'] = ta.macd(data['close']).macd.fillna(np.nan)
-    data['MFI'] = ta.mfi(data['high'], data['low'], data['close'], data['volume']).fillna(np.nan)
+    required_columns = ['close', 'high', 'low', 'volume']
+    for col in required_columns:
+        if col not in data.columns:
+            print(f"Missing required column: {col}")
+            return data
+
+    try:
+        data['RSI'] = ta.rsi(data['close'], length=14)
+        data['MACD'] = ta.macd(data['close']).macd
+        data['MFI'] = ta.mfi(data['high'], data['low'], data['close'], data['volume'])
+        
+        # Replace missing values with 0
+        data.fillna(0, inplace=True)
+    except Exception as e:
+        print(f"Error calculating indicators: {e}")
     return data
 
 def generate_signal(data):
@@ -60,17 +71,21 @@ def execute_trade(symbol, action, quantity):
 def main():
     # Example: Trade Apple stock
     symbol = "AAPL"  # Replace with your desired symbol
+    print("Fetching stock data...")
     data = fetch_stock_data(symbol)
     if data.empty:
         print("No data fetched, skipping...")
         return
 
+    print("Calculating indicators...")
     data = calculate_indicators(data)
 
+    print("Generating signals...")
     signal = generate_signal(data)
     print(f"Generated Signal: {signal}")
 
     if signal in ['BUY', 'SELL']:
+        print("Executing trade...")
         execute_trade(symbol, signal, quantity=1)  # Example quantity
     else:
         print("No action taken.")
